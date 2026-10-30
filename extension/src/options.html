@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Options - Bangla Fake News Detector</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 20px;
+      padding: 0;
+      color: #333;
+      max-width: 480px;
+      font-size: 14px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 0;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="url"], select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    .secondary-btn {
+      background: #f1f3f4;
+      color: #3c4043;
+      margin-left: 8px;
+    }
+    .secondary-btn:hover {
+      background: #e8eaed;
+    }
+    #status-msg {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #0d8a2e;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="options-title">Settings</h2>
+
+  <div class="form-group">
+    <label for="language-select" id="lbl-language">Language / ভাষা</label>
+    <select id="language-select">
+      <option value="en">English</option>
+      <option value="bn">বাংলা (Bangla)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="backend-url" id="lbl-backend-url">Backend Server URL</label>
+    <input type="url" id="backend-url" placeholder="http://127.0.0.1:8000">
+    <div class="help-text">Default: http://127.0.0.1:8000 (Local) or your HTTPS VPS domain.</div>
+  </div>
+
+  <div class="form-group">
+    <label for="api-key" id="lbl-api-key">API Key (Optional)</label>
+    <input type="text" id="api-key" placeholder="Leave blank if no key is configured">
+    <div class="help-text">Used to deter casual misuse if enabled on the backend server.</div>
+  </div>
+
+  <div class="form-group">
+    <label>
+      <input type="checkbox" id="use-mock-backend">
+      Enable Mock Backend (for offline UI testing / review)
+    </label>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <button id="save-btn">Save Settings</button>
+    <button id="withdraw-consent-btn" class="secondary-btn">Withdraw Consent</button>
+  </div>
+
+  <div id="status-msg"></div>
+
+  <script src="strings.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bangla Fake News Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1 id="app-title">Bangla Fake News Detector</h1>
+    <button id="lang-switch-btn" class="lang-switch">বাংলা</button>
+  </header>
+
+  <main id="main-content">
+    <!-- State: Consent Request -->
+    <div id="consent-state" style="display: none;">
+      <div class="card warning">
+        <p id="consent-text"></p>
+      </div>
+      <button id="consent-agree-btn" class="btn-primary"></button>
+      <button id="consent-decline-btn" class="btn-secondary"></button>
+    </div>
+
+    <!-- State: Idle -->
+    <div id="idle-state">
+      <button id="analyze-btn" class="btn-primary"></button>
+    </div>
+
+    <!-- State: Loading -->
+    <div id="loading-state" style="display: none;">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <div id="loading-text">Analyzing article...</div>
+      </div>
+    </div>
+
+    <!-- State: Result Card -->
+    <div id="result-state" style="display: none;">
+      <div id="result-card" class="card">
+        <div id="result-message"></div>
+        <div id="result-score" class="score-badge" style="display: none;"></div>
+      </div>
+      <div id="disclaimer-text" class="disclaimer"></div>
+      <button id="reanalyze-btn" class="btn-secondary" style="margin-top: 10px;">Analyze again</button>
+    </div>
+  </main>
+
+  <div class="footer-links">
+    <a href="#" id="open-options">Settings</a>
+  </div>
+
+  <script src="strings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
