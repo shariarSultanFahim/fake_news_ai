@@ -1,0 +1,21 @@
+# Pinned requirements for Bangla Fake News Detector Backend
+# CPU PyTorch and transformers 5.20.2 as specified in AGENT.md section 2
+# Note: transformers 5.20.2 requires torch >= 2.6; torch==2.15.0+cpu is the CPU wheel installed.
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+torch==2.15.0+cpu
+transformers==5.20.2
+git+https://github.com/csebuetnlp/normalizer.git@d405944dde5ceeacb7c2fd3245ae2a9dea5f35c9
+fastapi==0.115.11
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+pydantic-settings==2.8.1
+slowapi==0.1.9
+pytest==8.3.5
+requests==2.32.3
+scikit-learn==1.6.1
+numpy==2.1.3
+pandas==2.2.3
+psutil==6.1.1
+httpx==0.28.1
