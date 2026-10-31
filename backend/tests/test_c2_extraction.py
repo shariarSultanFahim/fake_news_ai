@@ -50,3 +50,4 @@ def test_content_js_robustness_features():
 
 if __name__ == "__main__":
     pytest.main(["-s", "-v", __file__])
+
