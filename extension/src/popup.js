@@ -275,11 +275,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         headline = content.substring(0, lineEnd).trim();
         content = content.substring(lineEnd + 1).trim();
       } else {
-        // Try split by sentence delimiter (Dari '।' or period '.')
-        const match = content.match(/^([^।\.\?\!]+[।\.\?\!])\s*(.*)$/su);
+        // Try split by sentence delimiter (Dari '।' or period/exclamation/question mark)
+        const match = content.match(/^([^।?!.]+)([।?!.])\s*([\s\S]*)$/);
         if (match) {
-          headline = match[1].trim();
-          content = match[2].trim();
+          headline = (match[1] + match[2]).trim();
+          content = match[3].trim();
         } else {
           // Fallback if single line with no punctuation
           headline = "";
