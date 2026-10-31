@@ -11,11 +11,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loadingState = document.getElementById("loading-state");
   const resultState = document.getElementById("result-state");
   const previewState = document.getElementById("preview-state");
+  const pasteState = document.getElementById("paste-state");
 
   const appTitle = document.getElementById("app-title");
   const langSwitchBtn = document.getElementById("lang-switch-btn");
   const analyzeBtn = document.getElementById("analyze-btn");
   const reanalyzeBtn = document.getElementById("reanalyze-btn");
+
+  const mainTabs = document.getElementById("main-tabs");
+  const tabBtnPage = document.getElementById("tab-btn-page");
+  const tabBtnPaste = document.getElementById("tab-btn-paste");
+
+  const pasteHeadline = document.getElementById("paste-headline");
+  const pasteContent = document.getElementById("paste-content");
+  const showPreviewPasteCheckbox = document.getElementById("show-preview-paste-checkbox");
+  const showPreviewPasteLabel = document.getElementById("show-preview-paste-label");
+  const pasteAnalyzeBtn = document.getElementById("paste-analyze-btn");
 
   const showPreviewCheckbox = document.getElementById("show-preview-checkbox");
   const showPreviewLabel = document.getElementById("show-preview-label");
@@ -39,28 +50,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   const disclaimerText = document.getElementById("disclaimer-text");
   const openOptions = document.getElementById("open-options");
 
+  let currentTab = "page"; // "page" or "paste"
   let pendingExtraction = null;
 
   // Load language, consent state, and show-preview preference from storage
   chrome.storage.local.get(["language", "consentGiven", "showPreview"], (items) => {
     currentLang = items.language || "en";
-    if (showPreviewCheckbox) {
-      showPreviewCheckbox.checked = items.showPreview || false;
-    }
+    const previewPref = items.showPreview || false;
+    if (showPreviewCheckbox) showPreviewCheckbox.checked = previewPref;
+    if (showPreviewPasteCheckbox) showPreviewPasteCheckbox.checked = previewPref;
     updateTexts();
 
     if (!items.consentGiven) {
       showState("consent");
     } else {
-      showState("idle");
+      showState(currentTab === "paste" ? "paste" : "idle");
     }
   });
 
-  if (showPreviewCheckbox) {
-    showPreviewCheckbox.addEventListener("change", (e) => {
-      chrome.storage.local.set({ showPreview: e.target.checked });
-    });
+  // Sync preview checkboxes
+  function onPreviewCheckboxChange(checked) {
+    if (showPreviewCheckbox) showPreviewCheckbox.checked = checked;
+    if (showPreviewPasteCheckbox) showPreviewPasteCheckbox.checked = checked;
+    chrome.storage.local.set({ showPreview: checked });
   }
+
+  if (showPreviewCheckbox) {
+    showPreviewCheckbox.addEventListener("change", (e) => onPreviewCheckboxChange(e.target.checked));
+  }
+  if (showPreviewPasteCheckbox) {
+    showPreviewPasteCheckbox.addEventListener("change", (e) => onPreviewCheckboxChange(e.target.checked));
+  }
+
+  // Tab switching
+  tabBtnPage.addEventListener("click", () => {
+    currentTab = "page";
+    tabBtnPage.classList.add("active");
+    tabBtnPaste.classList.remove("active");
+    showState("idle");
+  });
+
+  tabBtnPaste.addEventListener("click", () => {
+    currentTab = "paste";
+    tabBtnPaste.classList.add("active");
+    tabBtnPage.classList.remove("active");
+    showState("paste");
+  });
+
+  // Paste text analyze action
+  pasteAnalyzeBtn.addEventListener("click", performPasteAnalysis);
 
   // Preview state button listeners
   previewSendBtn.addEventListener("click", () => {
@@ -203,12 +241,103 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  function isBanglaChar(char) {
+    const code = char.charCodeAt(0);
+    return code >= 0x0980 && code <= 0x09FF;
+  }
+
+  function isLetterOrBangla(char) {
+    if (isBanglaChar(char)) return true;
+    return /\p{L}/u.test(char);
+  }
+
+  function checkBanglaRatio(text) {
+    let total = 0;
+    let bangla = 0;
+    for (const ch of text) {
+      if (isLetterOrBangla(ch)) {
+        total++;
+        if (isBanglaChar(ch)) bangla++;
+      }
+    }
+    return total === 0 ? 0 : bangla / total;
+  }
+
+  function parsePasteText(rawHeadline, rawText) {
+    let headline = (rawHeadline || "").trim();
+    let content = (rawText || "").trim();
+
+    // C3: If no headline is given, use first line (or first sentence) as headline, rest as content
+    if (!headline && content) {
+      // First try split by newline
+      const lineEnd = content.indexOf("\n");
+      if (lineEnd > 0) {
+        headline = content.substring(0, lineEnd).trim();
+        content = content.substring(lineEnd + 1).trim();
+      } else {
+        // Try split by sentence delimiter (Dari '।' or period '.')
+        const match = content.match(/^([^।\.\?\!]+[।\.\?\!])\s*(.*)$/su);
+        if (match) {
+          headline = match[1].trim();
+          content = match[2].trim();
+        } else {
+          // Fallback if single line with no punctuation
+          headline = "";
+        }
+      }
+    }
+
+    // Cap at first 400 words of content
+    const words = content.split(/\s+/).filter(Boolean);
+    const first400Words = words.slice(0, 400).join(" ");
+
+    // Check Bangla ratio and word counts
+    const combined = `${headline} ${first400Words}`.trim();
+    const ratio = checkBanglaRatio(combined);
+
+    if (ratio < 0.50) {
+      return { headline, content: first400Words, wordCount: words.length, band: "not_bangla" };
+    }
+    if (words.length < 40) {
+      return { headline, content: first400Words, wordCount: words.length, band: "too_short" };
+    }
+
+    return { headline, content: first400Words, wordCount: words.length, band: null };
+  }
+
+  function performPasteAnalysis() {
+    const rawHeadline = pasteHeadline ? pasteHeadline.value : "";
+    const rawContent = pasteContent ? pasteContent.value : "";
+
+    const parsed = parsePasteText(rawHeadline, rawContent);
+
+    if (parsed.band) {
+      showResult({ band: parsed.band, p_fake: null });
+      return;
+    }
+
+    const showPreview = showPreviewPasteCheckbox && showPreviewPasteCheckbox.checked;
+    if (showPreview) {
+      pendingExtraction = parsed;
+      showPreviewView(parsed);
+      return;
+    }
+
+    sendExtractionToBackend(parsed);
+  }
+
   function showState(state) {
     idleState.style.display = state === "idle" ? "block" : "none";
     consentState.style.display = state === "consent" ? "block" : "none";
     loadingState.style.display = state === "loading" ? "block" : "none";
     resultState.style.display = state === "result" ? "block" : "none";
     previewState.style.display = state === "preview" ? "block" : "none";
+    if (pasteState) pasteState.style.display = state === "paste" ? "block" : "none";
+
+    // Show tabs bar only when consented and in idle or paste state
+    if (mainTabs) {
+      mainTabs.style.display = (state === "idle" || state === "paste") ? "flex" : "none";
+    }
   }
 
   function showResult(data) {
@@ -257,6 +386,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     openOptions.innerText = dict.options_title;
 
     if (showPreviewLabel) showPreviewLabel.innerText = dict.show_preview_label;
+    if (showPreviewPasteLabel) showPreviewPasteLabel.innerText = dict.show_preview_label;
+    if (tabBtnPage) tabBtnPage.innerText = dict.tab_page;
+    if (tabBtnPaste) tabBtnPaste.innerText = dict.tab_paste;
+    if (pasteHeadline) pasteHeadline.placeholder = dict.paste_headline_placeholder;
+    if (pasteContent) pasteContent.placeholder = dict.paste_content_placeholder;
+    if (pasteAnalyzeBtn) pasteAnalyzeBtn.innerText = dict.paste_analyze_button;
+
     if (previewHeading) previewHeading.innerText = dict.preview_title;
     if (previewHeadlineLbl) previewHeadlineLbl.innerText = dict.preview_headline_label;
     if (previewBodyLbl) previewBodyLbl.innerText = dict.preview_body_label;

@@ -50,7 +50,14 @@ const STRINGS = {
     cancel_button: "Cancel",
 
     // C2: Robust Extraction Failure Notice (Needs human review)
-    extraction_failed: "Couldn't read this page. Select the text on the page and use Analyze selection, or paste it."
+    extraction_failed: "Couldn't read this page. Select the text on the page and use Analyze selection, or paste it.",
+
+    // C3: Paste text tab (Needs human review)
+    tab_page: "Current page",
+    tab_paste: "Paste text",
+    paste_headline_placeholder: "Headline (optional)",
+    paste_content_placeholder: "Paste Bangla article text here...",
+    paste_analyze_button: "Analyze text"
   },
 
   bn: {
@@ -98,7 +105,14 @@ const STRINGS = {
     cancel_button: "বাতিল",
 
     // C2: Robust Extraction Failure Notice (Needs human review)
-    extraction_failed: "এই পৃষ্ঠাটি পড়া যায়নি। পৃষ্ঠার লেখাটি নির্বাচন করে 'Analyze selection' ব্যবহার করুন, অথবা লেখাটি পেস্ট করুন।"
+    extraction_failed: "এই পৃষ্ঠাটি পড়া যায়নি। পৃষ্ঠার লেখাটি নির্বাচন করে 'Analyze selection' ব্যবহার করুন, অথবা লেখাটি পেস্ট করুন।",
+
+    // C3: Paste text tab (Needs human review)
+    tab_page: "বর্তমান পৃষ্ঠা",
+    tab_paste: "লেখা পেস্ট করুন",
+    paste_headline_placeholder: "শিরোনাম (ঐচ্ছিক)",
+    paste_content_placeholder: "এখানে সংবাদের বাংলা মূল বক্তব্য পেস্ট করুন...",
+    paste_analyze_button: "লেখা বিশ্লেষণ করুন"
   }
 };
 

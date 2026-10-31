@@ -34,6 +34,11 @@ This log records decisions, adaptations, and notes as specified in AGENT.md sect
   5. The popup displays: *"Couldn't read this page. Select the text on the page and use Analyze selection, or paste it."*
 - **Reason**: Implements change request C2. Protects user privacy while providing clear recovery action.
 
+## 2026-10-31: C3 "Paste text" Tab
+- **Decision**: Added a tabbed interface in `extension/src/popup.html` switching between "Current page" and "Paste text". The paste view contains an optional headline input and a textarea for article content. If no headline is provided, the first line (or first Dari/period-delimited sentence) is extracted as the headline and the remainder as content (matching evaluation variant D). Enforces standard 40-word minimum, 400-word truncation, and 50% Bangla ratio checks. Added English and Bangla strings to `extension/src/strings.js` (flagged for human review).
+- **Reason**: Implements change request C3.
+
+
 
 
 

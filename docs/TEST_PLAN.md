@@ -54,6 +54,7 @@ To be completed by human tester in Google Chrome (`chrome://extensions` with Dev
 |---|---|---|
 | **First-Use Consent** | Fresh installation or after clicking "Withdraw Consent" | Consent prompt box with "I Agree" and "Decline" buttons. Analysis blocked until agreed. |
 | **Idle** | Consented, extension opened | Single clean button: "Analyze this page" and "Show what will be sent" checkbox |
+| **Paste Text Tab (C3)** | Click "Paste text" tab in popup | Shows optional headline input, content textarea, "Show what will be sent" toggle, and "Analyze text" button. |
 | **Preview (C1)** | Checked "Show what will be sent" and clicked "Analyze this page" | Preview box displaying extracted headline, first 400 words of content, word count, "Send for analysis" and "Cancel" buttons. |
 | **Loading** | Clicked "Analyze this page" (or "Send for analysis" from preview) | Animated spinner with "Analyzing article..." label |
 | **Band: Strong** | High fake-like score (>= 0.70) | Red alert card with exact AGENT.md text + model score |
