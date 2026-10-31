@@ -103,3 +103,4 @@ ROC AUC:            1.0000  [95% CI: 1.0000 - 1.0000]
    - Load `extension/` in `chrome://extensions` (Developer Mode). Start local uvicorn (`uvicorn backend.app.main:app --port 8000`), navigate to a Bangla news article (e.g. Prothom Alo) and a fact-check page (Rumor Scanner), and verify extraction, consent prompt, and score badges.
 3. **Review Action Items in `HUMAN_TODO.md`**
    - Follow the prioritized checklist in `HUMAN_TODO.md` for deploying to your production VPS and taking the required screenshots for your project book.
+

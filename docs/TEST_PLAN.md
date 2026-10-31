@@ -62,3 +62,4 @@ To be completed by human tester in Google Chrome (`chrome://extensions` with Dev
 | **Error: Offline** | Backend server stopped | Red error card: "Could not reach the analysis server." |
 | **Error: Server** | Backend returns 500 | Red error card: "The analysis server returned an error." |
 | **Language Toggle** | Click language toggle in header | All strings instantly switch between English and Bangla. |
+

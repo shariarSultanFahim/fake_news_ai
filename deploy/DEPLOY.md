@@ -119,3 +119,4 @@ If another device needs to connect for testing, use a secure tunnel tool (e.g., 
 cloudflared tunnel --url http://127.0.0.1:8000
 ```
 Use the resulting `https://*.trycloudflare.com` URL in the Chrome Extension options.
+
