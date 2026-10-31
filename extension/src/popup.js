@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const appTitle = document.getElementById("app-title");
   const langSwitchBtn = document.getElementById("lang-switch-btn");
   const analyzeBtn = document.getElementById("analyze-btn");
+  const analyzeSelectionBtn = document.getElementById("analyze-selection-btn");
   const reanalyzeBtn = document.getElementById("reanalyze-btn");
 
   const mainTabs = document.getElementById("main-tabs");
@@ -139,7 +140,83 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Analyze button triggers extraction and background inference
   analyzeBtn.addEventListener("click", performAnalysis);
-  reanalyzeBtn.addEventListener("click", performAnalysis);
+  if (analyzeSelectionBtn) {
+    analyzeSelectionBtn.addEventListener("click", performSelectionAnalysis);
+  }
+  reanalyzeBtn.addEventListener("click", () => {
+    if (currentTab === "paste") {
+      performPasteAnalysis();
+    } else {
+      performAnalysis();
+    }
+  });
+
+  async function performSelectionAnalysis() {
+    showState("loading");
+
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.id) {
+        showError("error_offline");
+        return;
+      }
+
+      // Check fact-check domains list (M7)
+      const tabUrl = new URL(tab.url || "about:blank");
+      const host = tabUrl.hostname.toLowerCase();
+      const factcheckDomains = await loadFactcheckDomains();
+      const isFactCheck = factcheckDomains.some(domain => host === domain || host.endsWith("." + domain));
+
+      if (isFactCheck) {
+        showResult({ band: "factcheck", p_fake: null });
+        return;
+      }
+
+      // Read selected text from active tab via scripting and activeTab permission
+      const selectionResults = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => window.getSelection() ? window.getSelection().toString() : ""
+      });
+
+      const selectedText = selectionResults && selectionResults[0] ? (selectionResults[0].result || "").trim() : "";
+
+      if (!selectedText) {
+        showCustomError("no_selection_error");
+        return;
+      }
+
+      // Parse selected text using the same headline fallback / word limits logic (variant D)
+      const parsed = parsePasteText("", selectedText);
+
+      if (parsed.band) {
+        showResult({ band: parsed.band, p_fake: null });
+        return;
+      }
+
+      // Check if "Show what will be sent" is enabled
+      const showPreview = showPreviewCheckbox && showPreviewCheckbox.checked;
+      if (showPreview) {
+        pendingExtraction = parsed;
+        showPreviewView(parsed);
+        return;
+      }
+
+      sendExtractionToBackend(parsed);
+
+    } catch (err) {
+      console.error(err);
+      showError("error_offline");
+    }
+  }
+
+  function showCustomError(stringKey) {
+    showState("result");
+    const dict = STRINGS[currentLang] || STRINGS.en;
+    resultCard.className = "card warning";
+    resultMessage.innerText = dict[stringKey] || dict.error_server;
+    resultScore.style.display = "none";
+    disclaimerText.innerText = dict.disclaimer;
+  }
 
   async function performAnalysis() {
     showState("loading");
@@ -376,6 +453,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     appTitle.innerText = dict.app_title;
     langSwitchBtn.innerText = currentLang === "en" ? "বাংলা" : "English";
     analyzeBtn.innerText = dict.analyze_button;
+    if (analyzeSelectionBtn) analyzeSelectionBtn.innerText = dict.analyze_selection_button;
     reanalyzeBtn.innerText = currentLang === "en" ? "Analyze again" : "পুনরায় বিশ্লেষণ";
 
     consentText.innerText = dict.consent_prompt;

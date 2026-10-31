@@ -57,7 +57,11 @@ const STRINGS = {
     tab_paste: "Paste text",
     paste_headline_placeholder: "Headline (optional)",
     paste_content_placeholder: "Paste Bangla article text here...",
-    paste_analyze_button: "Analyze text"
+    paste_analyze_button: "Analyze text",
+
+    // C4: Analyze selected text (Needs human review)
+    analyze_selection_button: "Analyze selected text",
+    no_selection_error: "No text selected on page. Highlight text with your mouse and try again."
   },
 
   bn: {
@@ -112,7 +116,11 @@ const STRINGS = {
     tab_paste: "লেখা পেস্ট করুন",
     paste_headline_placeholder: "শিরোনাম (ঐচ্ছিক)",
     paste_content_placeholder: "এখানে সংবাদের বাংলা মূল বক্তব্য পেস্ট করুন...",
-    paste_analyze_button: "লেখা বিশ্লেষণ করুন"
+    paste_analyze_button: "লেখা বিশ্লেষণ করুন",
+
+    // C4: Analyze selected text (Needs human review)
+    analyze_selection_button: "নির্বাচিত অংশ বিশ্লেষণ করুন",
+    no_selection_error: "পৃষ্ঠায় কোনো লেখা নির্বাচন করা হয়নি। মাউস দিয়ে লেখা নির্বাচন করে আবার চেষ্টা করুন।"
   }
 };
 

@@ -38,6 +38,15 @@ This log records decisions, adaptations, and notes as specified in AGENT.md sect
 - **Decision**: Added a tabbed interface in `extension/src/popup.html` switching between "Current page" and "Paste text". The paste view contains an optional headline input and a textarea for article content. If no headline is provided, the first line (or first Dari/period-delimited sentence) is extracted as the headline and the remainder as content (matching evaluation variant D). Enforces standard 40-word minimum, 400-word truncation, and 50% Bangla ratio checks. Added English and Bangla strings to `extension/src/strings.js` (flagged for human review).
 - **Reason**: Implements change request C3.
 
+## 2026-10-31: C4 "Analyze selected text" Button
+- **Decision**: Added an "Analyze selected text" button under the primary analyze button in `extension/src/popup.html`. Clicking it executes an inline script in the active tab to retrieve `window.getSelection().toString()`.
+  - Uses strictly existing permissions (`activeTab`, `scripting`) without requesting any new permissions.
+  - Passes selected text through the same headline fallback / word limits logic (variant D).
+  - If no text is selected on the page, displays: *"No text selected on page. Highlight text with your mouse and try again."*
+  - Added English and Bangla strings to `extension/src/strings.js` (flagged for human review).
+- **Reason**: Implements change request C4.
+
+
 
 
 
