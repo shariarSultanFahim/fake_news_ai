@@ -38,7 +38,16 @@ const STRINGS = {
 
     // Supporting Details
     model_score_label: "Model score",
-    details_label: "Details"
+    details_label: "Details",
+
+    // C1: Show what will be sent (Needs human review)
+    show_preview_label: "Show what will be sent",
+    preview_title: "Content to be analyzed",
+    preview_headline_label: "Headline:",
+    preview_body_label: "Body content (first 400 words):",
+    preview_word_count_label: "Word count:",
+    send_analysis_button: "Send for analysis",
+    cancel_button: "Cancel"
   },
 
   bn: {
@@ -74,7 +83,16 @@ const STRINGS = {
 
     // Supporting Details
     model_score_label: "মডেল স্কোর",
-    details_label: "বিস্তারিত"
+    details_label: "বিস্তারিত",
+
+    // C1: Show what will be sent (Needs human review)
+    show_preview_label: "যা পাঠানো হবে তা দেখুন",
+    preview_title: "বিশ্লেষণের জন্য নির্ধারিত বিষয়বস্তু",
+    preview_headline_label: "শিরোনাম:",
+    preview_body_label: "মূল বক্তব্য (প্রথম ৪০০ শব্দ):",
+    preview_word_count_label: "শব্দ সংখ্যা:",
+    send_analysis_button: "বিশ্লেষণের জন্য পাঠান",
+    cancel_button: "বাতিল"
   }
 };
 

@@ -10,11 +10,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const consentState = document.getElementById("consent-state");
   const loadingState = document.getElementById("loading-state");
   const resultState = document.getElementById("result-state");
+  const previewState = document.getElementById("preview-state");
 
   const appTitle = document.getElementById("app-title");
   const langSwitchBtn = document.getElementById("lang-switch-btn");
   const analyzeBtn = document.getElementById("analyze-btn");
   const reanalyzeBtn = document.getElementById("reanalyze-btn");
+
+  const showPreviewCheckbox = document.getElementById("show-preview-checkbox");
+  const showPreviewLabel = document.getElementById("show-preview-label");
+  const previewHeading = document.getElementById("preview-heading");
+  const previewHeadlineLbl = document.getElementById("preview-headline-lbl");
+  const previewHeadline = document.getElementById("preview-headline");
+  const previewBodyLbl = document.getElementById("preview-body-lbl");
+  const previewBody = document.getElementById("preview-body");
+  const previewWordCountLbl = document.getElementById("preview-word-count-lbl");
+  const previewWordCount = document.getElementById("preview-word-count");
+  const previewSendBtn = document.getElementById("preview-send-btn");
+  const previewCancelBtn = document.getElementById("preview-cancel-btn");
 
   const consentText = document.getElementById("consent-text");
   const consentAgreeBtn = document.getElementById("consent-agree-btn");
@@ -26,9 +39,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const disclaimerText = document.getElementById("disclaimer-text");
   const openOptions = document.getElementById("open-options");
 
-  // Load language and consent state from storage
-  chrome.storage.local.get(["language", "consentGiven"], (items) => {
+  let pendingExtraction = null;
+
+  // Load language, consent state, and show-preview preference from storage
+  chrome.storage.local.get(["language", "consentGiven", "showPreview"], (items) => {
     currentLang = items.language || "en";
+    if (showPreviewCheckbox) {
+      showPreviewCheckbox.checked = items.showPreview || false;
+    }
     updateTexts();
 
     if (!items.consentGiven) {
@@ -36,6 +54,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       showState("idle");
     }
+  });
+
+  if (showPreviewCheckbox) {
+    showPreviewCheckbox.addEventListener("change", (e) => {
+      chrome.storage.local.set({ showPreview: e.target.checked });
+    });
+  }
+
+  // Preview state button listeners
+  previewSendBtn.addEventListener("click", () => {
+    if (pendingExtraction) {
+      sendExtractionToBackend(pendingExtraction);
+    }
+  });
+
+  previewCancelBtn.addEventListener("click", () => {
+    pendingExtraction = null;
+    showState("idle");
   });
 
   // Language switch
@@ -115,27 +151,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      // Send payload to background service worker for network call
-      chrome.runtime.sendMessage({
-        action: "predict",
-        payload: {
-          headline: extracted.headline,
-          content: extracted.content
-        }
-      }, (response) => {
-        if (chrome.runtime.lastError) {
-          showError("error_offline");
-          return;
-        }
+      // C1: Check if "Show what will be sent" is enabled
+      const showPreview = showPreviewCheckbox && showPreviewCheckbox.checked;
+      if (showPreview) {
+        pendingExtraction = extracted;
+        showPreviewView(extracted);
+        return;
+      }
 
-        if (!response || !response.success) {
-          const errType = (response && response.errorType) || "error_server";
-          showError(errType);
-          return;
-        }
-
-        showResult(response.data);
-      });
+      // Otherwise send directly
+      sendExtractionToBackend(extracted);
 
     } catch (err) {
       console.error(err);
@@ -143,11 +168,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function showPreviewView(extracted) {
+    showState("preview");
+    previewHeadline.innerText = extracted.headline || "(No headline)";
+    previewBody.innerText = extracted.content || "(No content)";
+    previewWordCount.innerText = extracted.wordCount !== undefined ? extracted.wordCount : extracted.content.split(/\s+/).filter(Boolean).length;
+  }
+
+  function sendExtractionToBackend(extracted) {
+    showState("loading");
+    // Send payload to background service worker for network call
+    chrome.runtime.sendMessage({
+      action: "predict",
+      payload: {
+        headline: extracted.headline,
+        content: extracted.content
+      }
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        showError("error_offline");
+        return;
+      }
+
+      if (!response || !response.success) {
+        const errType = (response && response.errorType) || "error_server";
+        showError(errType);
+        return;
+      }
+
+      showResult(response.data);
+    });
+  }
+
   function showState(state) {
     idleState.style.display = state === "idle" ? "block" : "none";
     consentState.style.display = state === "consent" ? "block" : "none";
     loadingState.style.display = state === "loading" ? "block" : "none";
     resultState.style.display = state === "result" ? "block" : "none";
+    previewState.style.display = state === "preview" ? "block" : "none";
   }
 
   function showResult(data) {
@@ -194,6 +252,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     disclaimerText.innerText = dict.disclaimer;
     openOptions.innerText = dict.options_title;
+
+    if (showPreviewLabel) showPreviewLabel.innerText = dict.show_preview_label;
+    if (previewHeading) previewHeading.innerText = dict.preview_title;
+    if (previewHeadlineLbl) previewHeadlineLbl.innerText = dict.preview_headline_label;
+    if (previewBodyLbl) previewBodyLbl.innerText = dict.preview_body_label;
+    if (previewWordCountLbl) previewWordCountLbl.innerText = dict.preview_word_count_label;
+    if (previewSendBtn) previewSendBtn.innerText = dict.send_analysis_button;
+    if (previewCancelBtn) previewCancelBtn.innerText = dict.cancel_button;
   }
 
   async function loadFactcheckDomains() {

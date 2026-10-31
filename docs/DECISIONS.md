@@ -21,4 +21,9 @@ This log records decisions, adaptations, and notes as specified in AGENT.md sect
 - **Decision**: Dockerfile, docker-compose.yml, Caddyfile, and DEPLOY.md were written and validated structurally. The local Docker Desktop daemon is not running on the Windows host, so Docker Compose is marked "written, not run" in accordance with user instructions. Local uvicorn execution is documented and verified.
 - **Reason**: Unattended session rule: "If Docker or another tool is not available, write the files, mark them 'written, not run', and continue."
 
+## 2026-10-31: C1 "Show what will be sent" Preview Option
+- **Decision**: Added a "Show what will be sent" checkbox option in the popup stored in `chrome.storage.local`. When enabled, clicking "Analyze this page" switches the popup to a review screen showing the extracted headline, first 400 words of body content, and word count with "Send for analysis" and "Cancel" buttons. Added corresponding English and Bangla strings to `extension/src/strings.js`.
+- **Reason**: Implements change request C1. All new Bangla strings are flagged as "needs human review".
+
+
 

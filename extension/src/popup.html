@@ -23,7 +23,29 @@
 
     <!-- State: Idle -->
     <div id="idle-state">
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" id="show-preview-checkbox">
+          <span id="show-preview-label">Show what will be sent</span>
+        </label>
+      </div>
       <button id="analyze-btn" class="btn-primary"></button>
+    </div>
+
+    <!-- State: Preview (C1) -->
+    <div id="preview-state" style="display: none;">
+      <h2 id="preview-heading" class="section-title">Content to be analyzed</h2>
+      <div class="preview-box">
+        <div class="preview-field-title" id="preview-headline-lbl">Headline:</div>
+        <div id="preview-headline" class="preview-text"></div>
+        <div class="preview-field-title" id="preview-body-lbl">Body content (first 400 words):</div>
+        <div id="preview-body" class="preview-text"></div>
+        <div class="preview-meta">
+          <strong id="preview-word-count-lbl">Word count:</strong> <span id="preview-word-count">0</span>
+        </div>
+      </div>
+      <button id="preview-send-btn" class="btn-primary" style="margin-top: 10px;">Send for analysis</button>
+      <button id="preview-cancel-btn" class="btn-secondary">Cancel</button>
     </div>
 
     <!-- State: Loading -->

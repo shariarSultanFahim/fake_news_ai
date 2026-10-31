@@ -176,3 +176,67 @@ h1 {
   text-decoration: underline;
 }
 
+/* C1: Preview and Checkbox Styles */
+.checkbox-container {
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #3c4043;
+}
+
+.checkbox-container label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-container input {
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #202124;
+}
+
+.preview-box {
+  background: #f8f9fa;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.preview-field-title {
+  font-weight: 600;
+  color: #5f6368;
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.preview-text {
+  background: #ffffff;
+  border: 1px solid #e8eaed;
+  border-radius: 4px;
+  padding: 6px;
+  margin-bottom: 8px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  max-height: 90px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.preview-meta {
+  font-size: 11px;
+  color: #3c4043;
+  margin-top: 4px;
+}
+
+
