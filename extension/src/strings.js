@@ -47,7 +47,10 @@ const STRINGS = {
     preview_body_label: "Body content (first 400 words):",
     preview_word_count_label: "Word count:",
     send_analysis_button: "Send for analysis",
-    cancel_button: "Cancel"
+    cancel_button: "Cancel",
+
+    // C2: Robust Extraction Failure Notice (Needs human review)
+    extraction_failed: "Couldn't read this page. Select the text on the page and use Analyze selection, or paste it."
   },
 
   bn: {
@@ -92,7 +95,10 @@ const STRINGS = {
     preview_body_label: "মূল বক্তব্য (প্রথম ৪০০ শব্দ):",
     preview_word_count_label: "শব্দ সংখ্যা:",
     send_analysis_button: "বিশ্লেষণের জন্য পাঠান",
-    cancel_button: "বাতিল"
+    cancel_button: "বাতিল",
+
+    // C2: Robust Extraction Failure Notice (Needs human review)
+    extraction_failed: "এই পৃষ্ঠাটি পড়া যায়নি। পৃষ্ঠার লেখাটি নির্বাচন করে 'Analyze selection' ব্যবহার করুন, অথবা লেখাটি পেস্ট করুন।"
   }
 };
 

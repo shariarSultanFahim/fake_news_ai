@@ -138,12 +138,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       const extracted = extractionResults && extractionResults[0] && extractionResults[0].result;
 
       if (!extracted) {
-        showResult({ band: "too_short", p_fake: null });
+        showResult({ band: "extraction_failed", p_fake: null });
         return;
       }
 
-      // If client pre-check indicates not_bangla or too_short
+      // If client pre-check indicates not_bangla, too_short, or extraction_failed
       if (extracted.band) {
+        if (extracted.failureReason) {
+          console.warn("[BanglaFakeNews] Extraction failure reported:", extracted.failureReason);
+        }
         showResult({
           band: extracted.band,
           p_fake: null

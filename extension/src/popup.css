@@ -109,6 +109,12 @@ h1 {
   color: #3c4043;
 }
 
+.card.extraction_failed {
+  border-left-color: #f2994a;
+  background-color: #fef4e8;
+  color: #7c4400;
+}
+
 .card.factcheck {
   border-left-color: #188038;
   background-color: #e6f4ea;

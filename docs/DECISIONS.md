@@ -25,5 +25,15 @@ This log records decisions, adaptations, and notes as specified in AGENT.md sect
 - **Decision**: Added a "Show what will be sent" checkbox option in the popup stored in `chrome.storage.local`. When enabled, clicking "Analyze this page" switches the popup to a review screen showing the extracted headline, first 400 words of body content, and word count with "Send for analysis" and "Cancel" buttons. Added corresponding English and Bangla strings to `extension/src/strings.js`.
 - **Reason**: Implements change request C1. All new Bangla strings are flagged as "needs human review".
 
+## 2026-10-31: C2 Robust Article Extraction Pipeline
+- **Decision**: Updated `extension/src/content.js` to execute a multi-tier extraction strategy:
+  1. Mozilla Readability first.
+  2. If Readability fails or returns under 40 words, finds the largest text block among `article`, `[itemprop='articleBody']`, and `main`.
+  3. If text remains under 40 words, waits 800ms and retries extraction once to support late-loading pages.
+  4. If all attempts fail, returns `band: "extraction_failed"` and logs the reason (`words found`, method) to console without logging any article text (privacy rule compliance).
+  5. The popup displays: *"Couldn't read this page. Select the text on the page and use Analyze selection, or paste it."*
+- **Reason**: Implements change request C2. Protects user privacy while providing clear recovery action.
+
+
 
 

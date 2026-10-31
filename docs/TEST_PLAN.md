@@ -60,6 +60,7 @@ To be completed by human tester in Google Chrome (`chrome://extensions` with Dev
 | **Band: Some** | Moderate score (0.40 - 0.69) | Orange warning card with exact AGENT.md text + model score |
 | **Band: None** | Low fake score (< 0.40) | Blue informative card with exact AGENT.md text + model score |
 | **Band: Fact-check** | URL matches factcheck_domains.json | Green informational card with fact-check disclaimer |
+| **Extraction Failed (C2)** | Page has no article elements or under 40 words after retry | Orange warning card: "Couldn't read this page. Select the text on the page and use Analyze selection, or paste it." with console log of failure reason (no article text). |
 | **Error: Offline** | Backend server stopped | Red error card: "Could not reach the analysis server." |
 | **Error: Server** | Backend returns 500 | Red error card: "The analysis server returned an error." |
 | **Language Toggle** | Click language toggle in header | All strings instantly switch between English and Bangla. |

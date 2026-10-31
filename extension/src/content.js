@@ -1,12 +1,18 @@
 /**
  * extension/src/content.js
- * Content script to extract article headline and body text according to AGENT.md section 6 (M6).
+ * Content script to extract article headline and body text according to AGENT.md section 6 (M6) and C2.
  *
- * Rules:
- * - Headline order: og:title -> first h1 -> document.title.
- * - Body: Mozilla Readability library (cloned document), send the first 400 words.
- * - Check that at least 50% of the letters in headline + content are Bangla before sending.
- * - Handles pages that load content late: brief wait and single retry if body is initially short.
+ * Extraction Order (C2):
+ * 1. Headline order: og:title -> first h1 -> document.title.
+ * 2. Body extraction:
+ *    a) Mozilla Readability first.
+ *    b) If Readability fails or produces < 40 words, try the largest text block among:
+ *       - article
+ *       - [itemprop=articleBody]
+ *       - main
+ *    c) If initial attempt produces < 40 words (late loading content), wait briefly (~800ms) and retry once.
+ * 3. If all fail (< 40 words or empty), return extraction_failed: true and log the reason.
+ * 4. Send first 400 words. Check that at least 50% of the letters in headline + content are Bangla.
  */
 
 (function () {
@@ -31,7 +37,12 @@
     return "";
   }
 
-  function getBodyContent() {
+  function getWordCount(text) {
+    if (!text) return 0;
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  }
+
+  function extractWithReadability() {
     try {
       if (typeof Readability !== "undefined") {
         const documentClone = document.cloneNode(true);
@@ -42,12 +53,46 @@
         }
       }
     } catch (e) {
-      console.warn("Readability parsing error, falling back to innerText:", e);
+      console.warn("[BanglaFakeNews] Readability exception:", e);
+    }
+    return "";
+  }
+
+  function extractFromSelectors() {
+    // Try the largest text block among article, [itemprop=articleBody], main
+    const candidateSelectors = ["article", "[itemprop='articleBody']", "main"];
+    let bestText = "";
+    let maxWords = 0;
+
+    for (const sel of candidateSelectors) {
+      const elements = document.querySelectorAll(sel);
+      for (const el of elements) {
+        const text = (el.innerText || "").trim();
+        const words = getWordCount(text);
+        if (words > maxWords) {
+          maxWords = words;
+          bestText = text;
+        }
+      }
     }
 
-    // Fallback if Readability fails
-    const articleElem = document.querySelector("article") || document.body;
-    return articleElem ? articleElem.innerText.trim() : "";
+    return bestText;
+  }
+
+  function attemptExtraction() {
+    let bodyText = extractWithReadability();
+    let methodUsed = "readability";
+
+    // If Readability fails or gives under 40 words, try largest block among selectors
+    if (getWordCount(bodyText) < 40) {
+      const selectorText = extractFromSelectors();
+      if (getWordCount(selectorText) > getWordCount(bodyText)) {
+        bodyText = selectorText;
+        methodUsed = "selectors";
+      }
+    }
+
+    return { bodyText, methodUsed };
   }
 
   function isBanglaChar(char) {
@@ -57,11 +102,8 @@
 
   function isLetterOrBangla(char) {
     if (isBanglaChar(char)) {
-      // Exclude Bengali digits and Bengali currency/punctuation if desired,
-      // but primarily check Unicode range 0x0980 - 0x09FF
       return true;
     }
-    // General Latin / alphabetic regex
     return /\p{L}/u.test(char);
   }
 
@@ -82,12 +124,43 @@
     return banglaLetters / totalLetters;
   }
 
-  function extractArticle() {
-    const headline = getHeadline();
-    const rawContent = getBodyContent();
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-    // Take the first 400 words of the body
-    const words = rawContent.split(/\s+/).filter(Boolean);
+  async function runExtractionPipeline() {
+    const headline = getHeadline();
+
+    // 1. First extraction attempt
+    let { bodyText, methodUsed } = attemptExtraction();
+    let wordCount = getWordCount(bodyText);
+
+    // 2. If < 40 words, page may load content late; wait briefly and retry once
+    if (wordCount < 40) {
+      await sleep(800);
+      const secondAttempt = attemptExtraction();
+      if (getWordCount(secondAttempt.bodyText) > wordCount) {
+        bodyText = secondAttempt.bodyText;
+        methodUsed = `${secondAttempt.methodUsed}_retry`;
+        wordCount = getWordCount(bodyText);
+      }
+    }
+
+    // 3. If still under 40 words or empty, report extraction failure
+    // Note: Privacy rule: Log only the failure reason (no article text)
+    if (wordCount < 40) {
+      console.warn(`[BanglaFakeNews] Article extraction failed. Reason: no article text found or text under 40 words (words found: ${wordCount}, method: ${methodUsed})`);
+      return {
+        headline: headline,
+        content: bodyText,
+        wordCount: wordCount,
+        band: "extraction_failed",
+        failureReason: `no article text (words: ${wordCount})`
+      };
+    }
+
+    // 4. Take the first 400 words
+    const words = bodyText.split(/\s+/).filter(Boolean);
     const first400Words = words.slice(0, 400).join(" ");
 
     // Check Bangla ratio on headline + first 400 words
@@ -103,15 +176,6 @@
       };
     }
 
-    if (words.length < 40) {
-      return {
-        headline: headline,
-        content: first400Words,
-        wordCount: words.length,
-        band: "too_short"
-      };
-    }
-
     return {
       headline: headline,
       content: first400Words,
@@ -120,6 +184,5 @@
     };
   }
 
-  return extractArticle();
+  return runExtractionPipeline();
 })();
-
