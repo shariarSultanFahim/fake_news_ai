@@ -6,7 +6,7 @@
 
 const STRINGS = {
   en: {
-    app_title: "Bangla Fake News Detector",
+    app_title: "Bangla FactGuard",
     analyze_button: "Analyze this page",
     analyzing: "Analyzing article...",
     options_title: "Settings",
@@ -65,7 +65,7 @@ const STRINGS = {
   },
 
   bn: {
-    app_title: "বাংলা ফেক নিউজ ডিটেক্টর",
+    app_title: "বাংলা ফ্যাক্টগার্ড",
     analyze_button: "এই পৃষ্ঠা বিশ্লেষণ করুন",
     analyzing: "প্রতিবেদন বিশ্লেষণ করা হচ্ছে...",
     options_title: "সেটিংস",
